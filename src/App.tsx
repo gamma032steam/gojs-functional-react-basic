@@ -4,7 +4,8 @@
 
 import * as go from 'gojs';
 import { produce } from 'immer';
-import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { useImmer } from 'use-immer';
 
 import { DiagramWrapper } from './components/DiagramWrapper';
 import { SelectionInspector } from './components/SelectionInspector';
@@ -16,7 +17,7 @@ import './App.css';
  * and modelData for demonstration purposes. Note, though, that
  * both are optional props in ReactDiagram.
  */
-interface AppState {
+type DiagramData = {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
@@ -24,14 +25,12 @@ interface AppState {
   skipsDiagramUpdate: boolean;
 }
 
-class App extends React.Component<{}, AppState> {
+function App() {
   // Maps to store key -> arr index for quick lookups
-  private mapNodeKeyIdx: Map<go.Key, number>;
-  private mapLinkKeyIdx: Map<go.Key, number>;
+  const [mapNodeKeyIdx, setMapNodeKeyIdx] = useState<Map<go.Key, number>>(new Map<go.Key, number>());
+  const [mapLinkKeyIdx, setMapLinkKeyIdx] = useState<Map<go.Key, number>>(new Map<go.Key, number>());
 
-  constructor(props: object) {
-    super(props);
-    this.state = {
+  const [diagram, updateDiagram] = useImmer<DiagramData>({
       nodeDataArray: [
         { key: 0, text: 'Alpha', color: 'lightblue', loc: '0 0' },
         { key: 1, text: 'Beta', color: 'orange', loc: '150 0' },
@@ -50,60 +49,55 @@ class App extends React.Component<{}, AppState> {
       },
       selectedData: null,
       skipsDiagramUpdate: false
+    });
+
+    useEffect(() => {
+      refreshNodeIndex(diagram.nodeDataArray);
+      refreshLinkIndex(diagram.linkDataArray);
+    }, []);
+
+    /**
+     * Update map of node keys to their index in the array.
+     */
+    const refreshNodeIndex = (nodeArr: Array<go.ObjectData>) => {
+      const newMapNodeKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
+      nodeArr.forEach((n: go.ObjectData, idx: number) => {
+        newMapNodeKeyIdx.set(n.key, idx);
+      });
+      setMapNodeKeyIdx(newMapNodeKeyIdx);
     };
-    // init maps
-    this.mapNodeKeyIdx = new Map<go.Key, number>();
-    this.mapLinkKeyIdx = new Map<go.Key, number>();
-    this.refreshNodeIndex(this.state.nodeDataArray);
-    this.refreshLinkIndex(this.state.linkDataArray);
-    // bind handler methods
-    this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRelinkChange = this.handleRelinkChange.bind(this);
-  }
 
-  /**
-   * Update map of node keys to their index in the array.
-   */
-  private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
-    this.mapNodeKeyIdx.clear();
-    nodeArr.forEach((n: go.ObjectData, idx: number) => {
-      this.mapNodeKeyIdx.set(n.key, idx);
-    });
-  }
-
-  /**
-   * Update map of link keys to their index in the array.
-   */
-  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
-    this.mapLinkKeyIdx.clear();
-    linkArr.forEach((l: go.ObjectData, idx: number) => {
-      this.mapLinkKeyIdx.set(l.key, idx);
-    });
-  }
+    /**
+     * Update map of link keys to their index in the array.
+     */
+    const refreshLinkIndex = (linkArr: Array<go.ObjectData>) => {
+      const newMapLinkKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
+      linkArr.forEach((l: go.ObjectData, idx: number) => {
+        newMapLinkKeyIdx.set(l.key, idx);
+      });
+      setMapLinkKeyIdx(newMapLinkKeyIdx);
+    };
 
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
    * @param e a GoJS DiagramEvent
    */
-  public handleDiagramEvent(e: go.DiagramEvent) {
+  const handleDiagramEvent = (e: go.DiagramEvent) => {
     const name = e.name;
     switch (name) {
       case 'ChangedSelection': {
         const sel = e.subject.first();
-        this.setState(
-          produce((draft: AppState) => {
+        updateDiagram((draft: DiagramData) => {
             if (sel) {
               if (sel instanceof go.Node) {
-                const idx = this.mapNodeKeyIdx.get(sel.key);
+                const idx = mapNodeKeyIdx.get(sel.key);
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
                 }
               } else if (sel instanceof go.Link) {
-                const idx = this.mapLinkKeyIdx.get(sel.key);
+                const idx = mapLinkKeyIdx.get(sel.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
@@ -112,13 +106,63 @@ class App extends React.Component<{}, AppState> {
             } else {
               draft.selectedData = null;
             }
-          })
+          }
         );
         break;
       }
       default: break;
     }
-  }
+  };
+
+  // Handle selections
+  useEffect(() => {
+    const selectedData = diagram.selectedData;
+    let inspector;
+    if (selectedData !== null) {
+      inspector = <SelectionInspector
+                    selectedData={diagram.selectedData}
+                    onInputChange={handleInputChange}
+                  />;
+    }
+  }, [handleInputChange]);
+
+  return (
+    <div>
+      <p>
+        Try moving around nodes, editing text, relinking, undoing (Ctrl-Z), etc. within the diagram
+        and you'll notice the changes are reflected in the inspector area. You'll also notice that changes
+        made in the inspector are reflected in the diagram. If you use the React dev tools,
+        you can inspect the React state and see it updated as changes happen.
+      </p>
+      <p>
+        Check out the <a href='https://gojs.net/latest/intro/react.html' target='_blank' rel='noopener noreferrer'>Intro page on using GoJS with React</a> for more information.
+      </p>
+      <DiagramWrapper
+        nodeDataArray={this.state.nodeDataArray}
+        linkDataArray={this.state.linkDataArray}
+        modelData={this.state.modelData}
+        skipsDiagramUpdate={this.state.skipsDiagramUpdate}
+        onDiagramEvent={this.handleDiagramEvent}
+        onModelChange={this.handleModelChange}
+      />
+      <label>
+        Allow Relinking?
+        <input
+          type='checkbox'
+          id='relink'
+          checked={this.state.modelData.canRelink}
+          onChange={this.handleRelinkChange} />
+      </label>
+      {inspector}
+    </div>
+  );
+};
+
+class App2 extends React.Component<{}, AppState> {
+
+
+
+
 
   /**
    * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -257,45 +301,10 @@ class App extends React.Component<{}, AppState> {
   }
 
   public render() {
-    const selectedData = this.state.selectedData;
-    let inspector;
-    if (selectedData !== null) {
-      inspector = <SelectionInspector
-                    selectedData={this.state.selectedData}
-                    onInputChange={this.handleInputChange}
-                  />;
+
     }
 
-    return (
-      <div>
-        <p>
-          Try moving around nodes, editing text, relinking, undoing (Ctrl-Z), etc. within the diagram
-          and you'll notice the changes are reflected in the inspector area. You'll also notice that changes
-          made in the inspector are reflected in the diagram. If you use the React dev tools,
-          you can inspect the React state and see it updated as changes happen.
-        </p>
-        <p>
-          Check out the <a href='https://gojs.net/latest/intro/react.html' target='_blank' rel='noopener noreferrer'>Intro page on using GoJS with React</a> for more information.
-        </p>
-        <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
-          skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
-        />
-        <label>
-          Allow Relinking?
-          <input
-            type='checkbox'
-            id='relink'
-            checked={this.state.modelData.canRelink}
-            onChange={this.handleRelinkChange} />
-        </label>
-        {inspector}
-      </div>
-    );
+
   }
 }
 

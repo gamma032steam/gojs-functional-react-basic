@@ -3,8 +3,9 @@
 ***gojs-functional-react-basic*** is a robust GoJS example and template built in functional react. It:
 
 * is built around the simplicity of hooks;
-* uses the last version of React; and
-* allows you to use the latest tooling for functional React.
+* swaps `immer` for `use-immer`;
+* uses the last version of React;
+* and allows you to use the latest functional React tooling.
 
 This project is an unofficial fork and replica of Northwoods Software's [gojs-react-basic](https://github.com/NorthwoodsSoftware/gojs-react-basic), which in turn dependends on the [gojs-react](https://github.com/NorthwoodsSoftware/gojs-react) codebase. It is inspired by [johchardy's minimal codesandbox](https://codesandbox.io/s/gojs-react-minimal-hooks-o9306?file=/src/App.js).
 
@@ -23,7 +24,6 @@ made in the inspector are reflected in the diagram. If you use the React dev too
 you can inspect the React state and see it updated as changes happen.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-It also uses [immer](https://immerjs.github.io/immer/docs/introduction) to simplify state update operations.
 
 ## Installation
 
