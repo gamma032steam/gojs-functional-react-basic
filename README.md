@@ -13,8 +13,6 @@ This project is an unofficial fork and replica of Northwoods Software's [gojs-re
 
 # About the Template
 
-## Installation
-
 ### By Northwoods Software for [GoJS 2.1](https://gojs.net)
 
 This project provides a basic example of using GoJS in a React app.
