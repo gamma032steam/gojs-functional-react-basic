@@ -65,7 +65,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
     const diagram =
       $(go.Diagram,
-        {
+        {                                                                                                                                                 
           'undoManager.isEnabled': true,  // must be set to allow for model change listening
           // 'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
           'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightblue' },
