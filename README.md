@@ -1,6 +1,6 @@
 # gojs-functional-react-basic
 
-***gojs-functional-react-basic*** is a robust GoJS example and template built in functional react. It:
+***gojs-functional-react-basic*** is a robust GoJS example and template built with functional React. It:
 
 * is built around the simplicity of hooks;
 * swaps `immer` for `use-immer`;
