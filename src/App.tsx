@@ -50,36 +50,36 @@ function App() {
       },
       selectedData: null,
       skipsDiagramUpdate: false
+  });
+
+  const [inspector, setInspector] = useState<JSX.Element>();
+
+  useEffect(() => {
+    refreshNodeIndex(diagram.nodeDataArray);
+    refreshLinkIndex(diagram.linkDataArray);
+  }, []);
+
+  /**
+   * Update map of node keys to their index in the array.
+   */
+  const refreshNodeIndex = (nodeArr: Array<go.ObjectData>) => {
+    const newMapNodeKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
+    nodeArr.forEach((n: go.ObjectData, idx: number) => {
+      newMapNodeKeyIdx.set(n.key, idx);
     });
+    setMapNodeKeyIdx(newMapNodeKeyIdx);
+  };
 
-    const [inspector, setInspector] = useState<JSX.Element>();
-
-    useEffect(() => {
-      refreshNodeIndex(diagram.nodeDataArray);
-      refreshLinkIndex(diagram.linkDataArray);
-    }, []);
-
-    /**
-     * Update map of node keys to their index in the array.
-     */
-    const refreshNodeIndex = (nodeArr: Array<go.ObjectData>) => {
-      const newMapNodeKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
-      nodeArr.forEach((n: go.ObjectData, idx: number) => {
-        newMapNodeKeyIdx.set(n.key, idx);
-      });
-      setMapNodeKeyIdx(newMapNodeKeyIdx);
-    };
-
-    /**
-     * Update map of link keys to their index in the array.
-     */
-    const refreshLinkIndex = (linkArr: Array<go.ObjectData>) => {
-      const newMapLinkKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
-      linkArr.forEach((l: go.ObjectData, idx: number) => {
-        newMapLinkKeyIdx.set(l.key, idx);
-      });
-      setMapLinkKeyIdx(newMapLinkKeyIdx);
-    };
+  /**
+   * Update map of link keys to their index in the array.
+   */
+  const refreshLinkIndex = (linkArr: Array<go.ObjectData>) => {
+    const newMapLinkKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
+    linkArr.forEach((l: go.ObjectData, idx: number) => {
+      newMapLinkKeyIdx.set(l.key, idx);
+    });
+    setMapLinkKeyIdx(newMapLinkKeyIdx);
+  };
 
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
@@ -121,7 +121,7 @@ function App() {
    * This method iterates over those changes and updates state to keep in sync with the GoJS model.
    * @param obj a JSON-formatted string
    */
-   const handleModelChange = (obj: go.IncrementalData) => {
+  const handleModelChange = (obj: go.IncrementalData) => {
     const insertedNodeKeys = obj.insertedNodeKeys;
     const modifiedNodeData = obj.modifiedNodeData;
     const removedNodeKeys = obj.removedNodeKeys;
