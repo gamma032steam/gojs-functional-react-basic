@@ -1,5 +1,7 @@
 # gojs-functional-react-basic
 
+[✏️ Try it in codesandbox!](https://codesandbox.io/s/github/gamma032steam/gojs-functional-react-basic)
+
 ***gojs-functional-react-basic*** is a robust GoJS example and template built with functional React. It:
 
 * is built around the simplicity of hooks;
