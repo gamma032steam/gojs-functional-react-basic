@@ -1,4 +1,14 @@
-# gojs-react-basic
+# gojs-functional-react-basic
+
+***gojs-functional-react-basic*** is a robust GoJS example and template built in functional react. It:
+
+* is built around the simplicity of hooks;
+* uses the last version of React; and
+* allows you to use the latest tooling for functional React.
+
+This project is an unofficial fork and replica of Northwoods Software's [gojs-react-basic](https://github.com/NorthwoodsSoftware/gojs-react-basic), which in turn dependends on the [gojs-react](https://github.com/NorthwoodsSoftware/gojs-react) codebase. It is inspired by [johchardy's minimal codesandbox](https://codesandbox.io/s/gojs-react-minimal-hooks-o9306?file=/src/App.js).
+
+## Installation
 
 ### By Northwoods Software for [GoJS 2.1](https://gojs.net)
 
@@ -17,7 +27,7 @@ It also uses [immer](https://immerjs.github.io/immer/docs/introduction) to simpl
 
 ## Installation
 
-Start by running npm install to install all necessary dependencies.
+Start by running `npm install` to install all necessary dependencies.
 
 ## Available Scripts
 
