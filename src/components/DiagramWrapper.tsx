@@ -4,55 +4,39 @@
 
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
-import * as React from 'react';
+import {useState, useCallback, useEffect} from 'react';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
+import { DiagramData } from '../App';
 
 import './Diagram.css';
 
 interface DiagramProps {
-  nodeDataArray: Array<go.ObjectData>;
-  linkDataArray: Array<go.ObjectData>;
-  modelData: go.ObjectData;
-  skipsDiagramUpdate: boolean;
+  diagramData: DiagramData;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
 }
 
-export class DiagramWrapper extends React.Component<DiagramProps, {}> {
-  /**
-   * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
-   */
-  private diagramRef: React.RefObject<ReactDiagram>;
+export function DiagramWrapper(props: DiagramProps) {
+  const [diagram, setDiagram] = useState<go.Diagram | null>(null);
 
-  /** @internal */
-  constructor(props: DiagramProps) {
-    super(props);
-    this.diagramRef = React.createRef();
-  }
-
-  /**
-   * Get the diagram reference and add any desired diagram listeners.
-   * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
-   */
-  public componentDidMount() {
-    if (!this.diagramRef.current) return;
-    const diagram = this.diagramRef.current.getDiagram();
-    if (diagram instanceof go.Diagram) {
-      diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+  const diagramRef = useCallback((ref: ReactDiagram | null) => {
+    if (ref != null) {
+      setDiagram(ref.getDiagram());
+      if (diagram instanceof go.Diagram) {
+        diagram.addDiagramListener('ChangedSelection', props.onDiagramEvent);
+      }
     }
-  }
+  }, [diagram, props.onDiagramEvent]);
 
-  /**
-   * Get the diagram reference and remove listeners that were added during mounting.
-   */
-  public componentWillUnmount() {
-    if (!this.diagramRef.current) return;
-    const diagram = this.diagramRef.current.getDiagram();
-    if (diagram instanceof go.Diagram) {
-      diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
-    }
-  }
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (diagram instanceof go.Diagram) {
+        diagram.removeDiagramListener('ChangedSelection', props.onDiagramEvent);
+      }
+    };
+  }, [diagram, props.onDiagramEvent]);
 
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
@@ -60,7 +44,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
    * and maybe doing other initialization tasks like customizing tools.
    * The model's data should not be set here, as the ReactDiagram component handles that.
    */
-  private initDiagram(): go.Diagram {
+  const initDiagram = (): go.Diagram => {
     const $ = go.GraphObject.make;
     // set your license key here before creating the diagram: go.Diagram.licenseKey = "...";
     const diagram =
@@ -123,20 +107,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       );
 
     return diagram;
-  }
+  };
 
-  public render() {
-    return (
-      <ReactDiagram
-        ref={this.diagramRef}
-        divClassName='diagram-component'
-        initDiagram={this.initDiagram}
-        nodeDataArray={this.props.nodeDataArray}
-        linkDataArray={this.props.linkDataArray}
-        modelData={this.props.modelData}
-        onModelChange={this.props.onModelChange}
-        skipsDiagramUpdate={this.props.skipsDiagramUpdate}
-      />
-    );
-  }
+  return (
+    <ReactDiagram
+      ref={diagramRef}
+      divClassName='diagram-component'
+      initDiagram={initDiagram}
+      nodeDataArray={props.diagramData.nodeDataArray}
+      linkDataArray={props.diagramData.linkDataArray}
+      modelData={props.diagramData.modelData}
+      onModelChange={props.onModelChange}
+      skipsDiagramUpdate={props.diagramData.skipsDiagramUpdate}
+    />
+  );
 }

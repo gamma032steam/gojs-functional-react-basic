@@ -3,22 +3,21 @@
 */
 
 import * as go from 'gojs';
-import { produce } from 'immer';
-import { useEffect, useState } from 'react';
+
+import { useEffect, useState, useCallback } from 'react';
 import { useImmer } from 'use-immer';
 
 import { DiagramWrapper } from './components/DiagramWrapper';
 import { SelectionInspector } from './components/SelectionInspector';
 
 import './App.css';
-import { JsxEmit } from 'typescript';
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
  * both are optional props in ReactDiagram.
  */
-type DiagramData = {
+export type DiagramData = {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
@@ -26,7 +25,7 @@ type DiagramData = {
   skipsDiagramUpdate: boolean;
 }
 
-function App() {
+export function App() {
   // Maps to store key -> arr index for quick lookups
   const [mapNodeKeyIdx, setMapNodeKeyIdx] = useState<Map<go.Key, number>>(new Map<go.Key, number>());
   const [mapLinkKeyIdx, setMapLinkKeyIdx] = useState<Map<go.Key, number>>(new Map<go.Key, number>());
@@ -54,32 +53,27 @@ function App() {
 
   const [inspector, setInspector] = useState<JSX.Element>();
 
-  useEffect(() => {
-    refreshNodeIndex(diagram.nodeDataArray);
-    refreshLinkIndex(diagram.linkDataArray);
-  }, []);
-
   /**
    * Update map of node keys to their index in the array.
    */
-  const refreshNodeIndex = (nodeArr: Array<go.ObjectData>) => {
+  const refreshNodeIndex = useCallback((nodeArr: Array<go.ObjectData>) => {
     const newMapNodeKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
     nodeArr.forEach((n: go.ObjectData, idx: number) => {
       newMapNodeKeyIdx.set(n.key, idx);
     });
     setMapNodeKeyIdx(newMapNodeKeyIdx);
-  };
+  }, []);
 
   /**
    * Update map of link keys to their index in the array.
    */
-  const refreshLinkIndex = (linkArr: Array<go.ObjectData>) => {
+  const refreshLinkIndex = useCallback((linkArr: Array<go.ObjectData>) => {
     const newMapLinkKeyIdx: Map<go.Key, number> = new Map<go.Key, number>();
     linkArr.forEach((l: go.ObjectData, idx: number) => {
       newMapLinkKeyIdx.set(l.key, idx);
     });
     setMapLinkKeyIdx(newMapLinkKeyIdx);
-  };
+  }, []);
 
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
@@ -222,6 +216,13 @@ function App() {
     });
   };
 
+  useEffect(() => {
+    refreshNodeIndex(diagram.nodeDataArray);
+    refreshLinkIndex(diagram.linkDataArray);
+  }, [refreshNodeIndex, refreshLinkIndex, diagram.nodeDataArray, diagram.linkDataArray]);
+
+  // Handle selections
+  useEffect(() => {
   /**
    * Handle inspector changes, and on input field blurs, update node/link data state.
    * @param path the path to the property being modified
@@ -251,8 +252,6 @@ function App() {
     })
   }
 
-  // Handle selections
-  useEffect(() => {
     const selectedData = diagram.selectedData;
     let inspector;
     if (selectedData !== null) {
@@ -262,7 +261,7 @@ function App() {
                   />;
       setInspector(inspector);
     }
-  }, [handleInputChange]);
+  }, [diagram.selectedData, mapLinkKeyIdx, mapNodeKeyIdx, updateDiagram]);
 
   return (
     <div>
@@ -276,10 +275,7 @@ function App() {
         Check out the <a href='https://gojs.net/latest/intro/react.html' target='_blank' rel='noopener noreferrer'>Intro page on using GoJS with React</a> for more information.
       </p>
       <DiagramWrapper
-        nodeDataArray={diagram.nodeDataArray}
-        linkDataArray={diagram.linkDataArray}
-        modelData={diagram.modelData}
-        skipsDiagramUpdate={diagram.skipsDiagramUpdate}
+        diagramData={diagram}
         onDiagramEvent={handleDiagramEvent}
         onModelChange={handleModelChange}
       />
@@ -295,5 +291,3 @@ function App() {
     </div>
   );
 };
-
-export default App;
