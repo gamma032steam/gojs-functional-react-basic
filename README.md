@@ -9,7 +9,7 @@
 * uses the last version of React;
 * and allows you to use the latest functional React tooling.
 
-This project is an unofficial fork and replica of Northwoods Software's [gojs-react-basic](https://github.com/NorthwoodsSoftware/gojs-react-basic), which in turn depends on the [gojs-react](https://github.com/NorthwoodsSoftware/gojs-react) codebase. It is inspired by [johchardy's minimal codesandbox](https://codesandbox.io/s/gojs-react-minimal-hooks-o9306?file=/src/App.js).
+This project is an unofficial fork and replica of Northwoods Software's [gojs-react-basic](https://github.com/NorthwoodsSoftware/gojs-react-basic), which in turn depends on the [gojs-react](https://github.com/NorthwoodsSoftware/gojs-react) codebase. It is inspired by [jonchardy's minimal codesandbox](https://codesandbox.io/s/gojs-react-minimal-hooks-o9306?file=/src/App.js).
 
 ## Installation
 
