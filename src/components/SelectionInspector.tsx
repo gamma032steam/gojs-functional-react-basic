@@ -2,8 +2,6 @@
 *  Copyright (C) 1998-2021 by Northwoods Software Corporation. All Rights Reserved.
 */
 
-import * as React from 'react';
-
 import { InspectorRow } from './InspectorRow';
 
 import './Inspector.css';
@@ -13,12 +11,12 @@ interface SelectionInspectorProps {
   onInputChange: (id: string, value: string, isBlur: boolean) => void;
 }
 
-export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
+export function SelectionInspector(props: SelectionInspectorProps) {
   /**
    * Render the object data, passing down property keys and values.
    */
-  private renderObjectDetails() {
-    const selObj = this.props.selectedData;
+  const renderObjectDetails = () => {
+    const selObj = props.selectedData;
     const dets = [];
     for (const k in selObj) {
       const val = selObj[k];
@@ -26,7 +24,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                     key={k}
                     id={k}
                     value={val}
-                    onInputChange={this.props.onInputChange} />;
+                    onInputChange={props.onInputChange} />;
       if (k === 'key') {
         dets.unshift(row); // key always at start
       } else {
@@ -36,15 +34,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     return dets;
   }
 
-  public render() {
-    return (
-      <div id='myInspectorDiv' className='inspector'>
-        <table>
-          <tbody>
-            {this.renderObjectDetails()}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
-}
+  return (
+    <div id='myInspectorDiv' className='inspector'>
+      <table>
+        <tbody>
+          {renderObjectDetails()}
+        </tbody>
+      </table>
+    </div>
+  );
+};
