@@ -121,4 +121,4 @@ export function DiagramWrapper(props: DiagramProps) {
       skipsDiagramUpdate={props.diagramData.skipsDiagramUpdate}
     />
   );
-}
+};

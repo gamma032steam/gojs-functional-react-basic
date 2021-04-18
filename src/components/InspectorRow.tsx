@@ -2,7 +2,7 @@
 *  Copyright (C) 1998-2021 by Northwoods Software Corporation. All Rights Reserved.
 */
 
-import * as React from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import './Inspector.css';
 
 interface InspectorRowProps {
@@ -11,17 +11,14 @@ interface InspectorRowProps {
   onInputChange: (key: string, value: string, isBlur: boolean) => void;
 }
 
-export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
-  constructor(props: InspectorRowProps) {
-    super(props);
-    this.handleInputChange = this.handleInputChange.bind(this);
-  }
+export function InspectorRow(props: InspectorRowProps) {
+  const [val, setVal] = useState<string>(props.value);
 
-  private handleInputChange(e: any) {
-    this.props.onInputChange(this.props.id, e.target.value, e.type === 'blur');
-  }
+  const handleInputChange = (e: any) => {
+    props.onInputChange(props.id, e.target.value, e.type === 'blur');
+  };
 
-  private formatLocation(loc: string): string {
+  const formatLocation = useCallback((loc: string): string => {
     const locArr = loc.split(' ');
     if (locArr.length === 2) {
       const x = parseFloat(locArr[0]);
@@ -31,25 +28,25 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       }
     }
     return loc;
-  }
+  }, []);
 
-  public render() {
-    let val = this.props.value;
-    if (this.props.id === 'loc') {
-      val = this.formatLocation(this.props.value);
+  useEffect(() => {
+    if (props.id === 'loc') {
+      setVal(formatLocation(props.value));
     }
-    return (
-      <tr>
-        <td>{this.props.id}</td>
-        <td>
-          <input
-            disabled={this.props.id === 'key'}
-            value={val}
-            onChange={this.handleInputChange}
-            onBlur={this.handleInputChange}>
-          </input>
-        </td>
-      </tr>
-    );
-  }
-}
+  }, [props.id, props.value, setVal, formatLocation]);
+  
+  return (
+    <tr>
+      <td>{props.id}</td>
+      <td>
+        <input
+          disabled={props.id === 'key'}
+          value={val}
+          onChange={handleInputChange}
+          onBlur={handleInputChange}>
+        </input>
+      </td>
+    </tr>
+  );
+};
