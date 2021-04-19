@@ -200,8 +200,8 @@ export function App() {
         draft.modelData = modifiedModelData;
       }
       draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
-    })
-  }
+    });
+  };
 
   /**
    * Handle changes to the checkbox on whether to allow relinking.
@@ -223,34 +223,34 @@ export function App() {
 
   // Handle selections
   useEffect(() => {
-  /**
-   * Handle inspector changes, and on input field blurs, update node/link data state.
-   * @param path the path to the property being modified
-   * @param value the new value of that property
-   * @param isBlur whether the input event was a blur, indicating the edit is complete
-   */
-  const handleInputChange = (path: string, value: string, isBlur: boolean) => {
-    updateDiagram((draft: DiagramData) => {
-      const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-      data[path] = value;
-      if (isBlur) {
-        const key = data.key;
-        if (key < 0) {  // negative keys are links
-          const idx = mapLinkKeyIdx.get(key);
-          if (idx !== undefined && idx >= 0) {
-            draft.linkDataArray[idx] = data;
-            draft.skipsDiagramUpdate = false;
-          }
-        } else {
-          const idx = mapNodeKeyIdx.get(key);
-          if (idx !== undefined && idx >= 0) {
-            draft.nodeDataArray[idx] = data;
-            draft.skipsDiagramUpdate = false;
+    /**
+     * Handle inspector changes, and on input field blurs, update node/link data state.
+     * @param path the path to the property being modified
+     * @param value the new value of that property
+     * @param isBlur whether the input event was a blur, indicating the edit is complete
+     */
+    const handleInputChange = (path: string, value: string, isBlur: boolean) => {
+      updateDiagram((draft: DiagramData) => {
+        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
+        data[path] = value;
+        if (isBlur) {
+          const key = data.key;
+          if (key < 0) {  // negative keys are links
+            const idx = mapLinkKeyIdx.get(key);
+            if (idx !== undefined && idx >= 0) {
+              draft.linkDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          } else {
+            const idx = mapNodeKeyIdx.get(key);
+            if (idx !== undefined && idx >= 0) {
+              draft.nodeDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
           }
         }
-      }
-    })
-  }
+      });
+    };
 
     const selectedData = diagram.selectedData;
     let inspector;
